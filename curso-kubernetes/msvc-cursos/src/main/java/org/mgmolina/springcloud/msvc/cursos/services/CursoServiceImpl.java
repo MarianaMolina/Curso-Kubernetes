@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CursoServiceImpl implements CursoService{
@@ -45,6 +46,27 @@ public class CursoServiceImpl implements CursoService{
         repository.deleteById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Curso> porIdConUsuarios(Long id) {
+        Optional<Curso> o = repository.findById(id);
+
+        if(o.isPresent()){
+            Curso curso = o.get();
+
+            if (!curso.getCursoUsuarios().isEmpty()){
+                List<Long> ids = curso.getCursoUsuarios().stream().map(cursoUsuario -> cursoUsuario.getUsuarioId()).collect(Collectors.toList());
+
+                List<Usuario> usuarios = client.obtenerAlumnosPorCurso(ids);
+
+                curso.setUsuarios(usuarios);
+            }
+            return Optional.of(curso);
+        }
+
+        return Optional.empty();
+    }
+
     //Metodos de ClienteRest
 
     @Override
@@ -52,6 +74,7 @@ public class CursoServiceImpl implements CursoService{
     public Optional<Usuario> asignarUsuario(Usuario usuario, Long cursoId) {
         //validar el curso
         Optional<Curso> o = repository.findById(cursoId);
+
         if(o.isPresent()){
             Usuario usuarioMsvc  = client.detalle(usuario.getId());
 
@@ -74,9 +97,9 @@ public class CursoServiceImpl implements CursoService{
     public Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId) {
         //validar el curso
         Optional<Curso> o = repository.findById(cursoId);
-        System.out.println("despues de cargar curso");
+
         if(o.isPresent()){
-            System.out.println("si existe el curso"+ usuario.getNombre());
+
             Usuario usuarioNuevoMsvc  = client.crear(usuario);
 
             //creando el curso

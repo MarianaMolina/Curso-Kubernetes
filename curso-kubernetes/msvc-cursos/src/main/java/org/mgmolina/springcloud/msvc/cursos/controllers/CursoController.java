@@ -25,7 +25,8 @@ public class CursoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> detalle(@PathVariable Long id){
-        Optional<Curso> o = service.porId(id);
+        //Optional<Curso> o = service.porId(id);
+        Optional<Curso> o = service.porIdConUsuarios(id);
         if(o.isPresent()){
             return ResponseEntity.ok(o.get());
         }
@@ -70,15 +71,19 @@ public class CursoController {
 
     @PutMapping("/asignar-usuario/{cursoId}")
     public ResponseEntity<?> asignarUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId){
-        Optional<Usuario> o;
+        Optional<Usuario> o ;
 
-        try{
+        try {
             o = service.asignarUsuario(usuario, cursoId);
-        }catch (FeignException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("mensaje", "No existe el usuario por el id o error en la comunicacion:"+e.getMessage()));
         }
+        catch (FeignException.FeignClientException e){
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("Mensaje",
+                            "No existe el usuario por el id o error en la comunicacion"
+                                    + e.getMessage()));
 
-        if(o.isPresent()){
+        }
+        if( o.isPresent() ){
             return ResponseEntity.status(HttpStatus.CREATED).body(o.get());
         }
         return ResponseEntity.notFound().build();
@@ -86,15 +91,19 @@ public class CursoController {
 
     @PostMapping ("/crear-usuario/{cursoId}")
     public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId){
-        Optional<Usuario> o;
+        Optional<Usuario> o ;
 
-        try{
+        try {
             o = service.crearUsuario(usuario, cursoId);
-        }catch (FeignException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("mensaje", "No se pudo crear el usuario o error en la comunicacion:"+e.getMessage()));
         }
+        catch (FeignException.FeignClientException e){
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("Mensaje",
+                            "No se pudo crear el usuario o error en la comunicacion"
+                                    + e.getMessage()));
 
-        if(o.isPresent()){
+        }
+        if( o.isPresent() ){
             return ResponseEntity.status(HttpStatus.CREATED).body(o.get());
         }
         return ResponseEntity.notFound().build();
@@ -107,7 +116,7 @@ public class CursoController {
 
         try{
             o = service.eliminarUsuario(usuario, cursoId);
-        }catch (FeignException e){
+        }catch (FeignException.FeignClientException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("mensaje", "No existe el usuario por el id o error en la comunicacion:"+e.getMessage()));
         }
 

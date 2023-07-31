@@ -12,11 +12,14 @@ public interface CursoService {
     Curso guardar(Curso curso);
     void eliminar(Long id);
 
+    Optional<Curso> porIdConUsuarios(Long id);
+
     //Metodos relaiconados al cliente API rest, tendran comunicacion con el otro servicio
     Optional<Usuario> asignarUsuario(Usuario usuario, Long cursoId);
 
     Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId);
     Optional<Usuario> eliminarUsuario(Usuario usuario, Long cursoId);
+
 
 
 }
