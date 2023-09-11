@@ -14,6 +14,8 @@ public interface CursoService {
 
     Optional<Curso> porIdConUsuarios(Long id);
 
+    void eliminarCursoUsuarioPorId(Long id);
+
     //Metodos relaiconados al cliente API rest, tendran comunicacion con el otro servicio
     Optional<Usuario> asignarUsuario(Usuario usuario, Long cursoId);
 
